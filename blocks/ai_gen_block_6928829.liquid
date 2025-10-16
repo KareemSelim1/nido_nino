@@ -1,0 +1,415 @@
+{% doc %}
+  @prompt
+    i want to add a section under the details that displays product dimentions when we click expand on it, can you make dimentions word match the theme and be more to the right instead of sticking to the far left of the screen, make the DIMENSIONS word and the arrow centered in the page
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-dimensions-{{ ai_gen_id }} {
+    border-top: 1px solid rgba(var(--color-foreground), 0.08);
+    margin-top: 1rem;
+    max-width: {{ settings.page_width }}px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .ai-dimensions-toggle-{{ ai_gen_id }} {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    font-family: var(--font-heading-family);
+    font-size: calc(var(--font-heading-scale) * {{ block.settings.heading_size }}px);
+    font-weight: var(--font-heading-weight);
+    line-height: var(--font-heading-line-height);
+    color: rgb(var(--color-foreground));
+    transition: color 0.2s ease;
+    letter-spacing: calc(var(--font-heading-scale) * 0.06rem);
+  }
+
+  .ai-dimensions-toggle-{{ ai_gen_id }}:hover {
+    color: rgba(var(--color-foreground), 0.75);
+  }
+
+  .ai-dimensions-icon-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+  }
+
+  .ai-dimensions-toggle-{{ ai_gen_id }}[aria-expanded="true"] .ai-dimensions-icon-{{ ai_gen_id }} {
+    transform: rotate(180deg);
+  }
+
+  .ai-dimensions-content-{{ ai_gen_id }} {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0;
+  }
+
+  .ai-dimensions-content-{{ ai_gen_id }}.expanded {
+    max-height: 500px;
+    padding-bottom: 1.5rem;
+  }
+
+  .ai-dimensions-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .ai-dimension-item-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: rgba(var(--color-foreground), 0.04);
+    border-radius: {{ settings.buttons_radius }}px;
+    border: 1px solid rgba(var(--color-foreground), 0.08);
+  }
+
+  .ai-dimension-label-{{ ai_gen_id }} {
+    font-size: calc(var(--font-body-scale) * 0.875rem);
+    color: rgba(var(--color-foreground), 0.75);
+    font-weight: 500;
+    font-family: var(--font-body-family);
+  }
+
+  .ai-dimension-value-{{ ai_gen_id }} {
+    font-size: calc(var(--font-body-scale) * 0.875rem);
+    color: rgb(var(--color-foreground));
+    font-weight: 600;
+    font-family: var(--font-body-family);
+  }
+
+  .ai-dimensions-note-{{ ai_gen_id }} {
+    font-size: calc(var(--font-body-scale) * 0.8125rem);
+    color: rgba(var(--color-foreground), 0.6);
+    font-style: italic;
+    margin-top: 0.5rem;
+    font-family: var(--font-body-family);
+  }
+
+  .ai-dimensions-empty-{{ ai_gen_id }} {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: rgba(var(--color-foreground), 0.5);
+    font-size: calc(var(--font-body-scale) * 0.875rem);
+    font-style: italic;
+    background-color: rgba(var(--color-foreground), 0.02);
+    border-radius: {{ settings.buttons_radius }}px;
+    border: 1px dashed rgba(var(--color-foreground), 0.1);
+    font-family: var(--font-body-family);
+  }
+
+  @media screen and (max-width: 990px) {
+    .ai-product-dimensions-{{ ai_gen_id }} {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-dimensions-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+    
+    .ai-dimensions-toggle-{{ ai_gen_id }} {
+      font-size: calc(var(--font-heading-scale) * {{ block.settings.heading_size | times: 0.9 }}px);
+    }
+
+    .ai-product-dimensions-{{ ai_gen_id }} {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+{% endstyle %}
+
+<product-dimensions-{{ ai_gen_id }}
+  class="ai-product-dimensions-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <button
+    class="ai-dimensions-toggle-{{ ai_gen_id }}"
+    aria-expanded="false"
+    aria-controls="ai-dimensions-content-{{ ai_gen_id }}"
+  >
+    <span>{{ block.settings.heading_text }}</span>
+    <svg
+      class="ai-dimensions-icon-{{ ai_gen_id }}"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="6,9 12,15 18,9"></polyline>
+    </svg>
+  </button>
+
+  <div
+    id="ai-dimensions-content-{{ ai_gen_id }}"
+    class="ai-dimensions-content-{{ ai_gen_id }}"
+    aria-hidden="true"
+  >
+    {% liquid
+      assign has_dimensions = false
+      if block.settings.length != blank or block.settings.width != blank or block.settings.height != blank or block.settings.weight != blank or block.settings.diameter != blank or block.settings.custom_dimension_1_label != blank or block.settings.custom_dimension_2_label != blank or block.settings.custom_dimension_3_label != blank
+        assign has_dimensions = true
+      endif
+    %}
+
+    {% if has_dimensions %}
+      <div class="ai-dimensions-grid-{{ ai_gen_id }}">
+        {% if block.settings.length != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.length_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.length }}</span>
+          </div>
+        {% endif %}
+
+        {% if block.settings.width != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.width_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.width }}</span>
+          </div>
+        {% endif %}
+
+        {% if block.settings.height != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.height_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.height }}</span>
+          </div>
+        {% endif %}
+
+        {% if block.settings.weight != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.weight_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.weight }}</span>
+          </div>
+        {% endif %}
+
+        {% if block.settings.diameter != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.diameter_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.diameter }}</span>
+          </div>
+        {% endif %}
+
+        {% if block.settings.custom_dimension_1_label != blank and block.settings.custom_dimension_1_value != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.custom_dimension_1_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.custom_dimension_1_value }}</span>
+          </div>
+        {% endif %}
+
+        {% if block.settings.custom_dimension_2_label != blank and block.settings.custom_dimension_2_value != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.custom_dimension_2_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.custom_dimension_2_value }}</span>
+          </div>
+        {% endif %}
+
+        {% if block.settings.custom_dimension_3_label != blank and block.settings.custom_dimension_3_value != blank %}
+          <div class="ai-dimension-item-{{ ai_gen_id }}">
+            <span class="ai-dimension-label-{{ ai_gen_id }}">{{ block.settings.custom_dimension_3_label }}</span>
+            <span class="ai-dimension-value-{{ ai_gen_id }}">{{ block.settings.custom_dimension_3_value }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      {% if block.settings.dimensions_note != blank %}
+        <div class="ai-dimensions-note-{{ ai_gen_id }}">
+          {{ block.settings.dimensions_note }}
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="ai-dimensions-empty-{{ ai_gen_id }}">
+        Next, add product dimensions in the block settings
+      </div>
+    {% endif %}
+  </div>
+</product-dimensions-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductDimensions{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.toggle = this.querySelector('.ai-dimensions-toggle-{{ ai_gen_id }}');
+        this.content = this.querySelector('.ai-dimensions-content-{{ ai_gen_id }}');
+        
+        if (this.toggle && this.content) {
+          this.toggle.addEventListener('click', this.handleToggle.bind(this));
+        }
+      }
+
+      handleToggle() {
+        const isExpanded = this.toggle.getAttribute('aria-expanded') === 'true';
+        
+        this.toggle.setAttribute('aria-expanded', !isExpanded);
+        this.content.setAttribute('aria-hidden', isExpanded);
+        
+        if (isExpanded) {
+          this.content.classList.remove('expanded');
+        } else {
+          this.content.classList.add('expanded');
+        }
+      }
+    }
+
+    customElements.define('product-dimensions-{{ ai_gen_id }}', ProductDimensions{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product dimensions",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section settings"
+    },
+    {
+      "type": "text",
+      "id": "heading_text",
+      "label": "Heading text",
+      "default": "Dimensions"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Standard dimensions"
+    },
+    {
+      "type": "text",
+      "id": "length_label",
+      "label": "Length label",
+      "default": "Length"
+    },
+    {
+      "type": "text",
+      "id": "length",
+      "label": "Length value"
+    },
+    {
+      "type": "text",
+      "id": "width_label",
+      "label": "Width label",
+      "default": "Width"
+    },
+    {
+      "type": "text",
+      "id": "width",
+      "label": "Width value"
+    },
+    {
+      "type": "text",
+      "id": "height_label",
+      "label": "Height label",
+      "default": "Height"
+    },
+    {
+      "type": "text",
+      "id": "height",
+      "label": "Height value"
+    },
+    {
+      "type": "text",
+      "id": "weight_label",
+      "label": "Weight label",
+      "default": "Weight"
+    },
+    {
+      "type": "text",
+      "id": "weight",
+      "label": "Weight value"
+    },
+    {
+      "type": "text",
+      "id": "diameter_label",
+      "label": "Diameter label",
+      "default": "Diameter"
+    },
+    {
+      "type": "text",
+      "id": "diameter",
+      "label": "Diameter value"
+    },
+    {
+      "type": "header",
+      "content": "Custom dimensions"
+    },
+    {
+      "type": "text",
+      "id": "custom_dimension_1_label",
+      "label": "Custom dimension 1 label"
+    },
+    {
+      "type": "text",
+      "id": "custom_dimension_1_value",
+      "label": "Custom dimension 1 value"
+    },
+    {
+      "type": "text",
+      "id": "custom_dimension_2_label",
+      "label": "Custom dimension 2 label"
+    },
+    {
+      "type": "text",
+      "id": "custom_dimension_2_value",
+      "label": "Custom dimension 2 value"
+    },
+    {
+      "type": "text",
+      "id": "custom_dimension_3_label",
+      "label": "Custom dimension 3 label"
+    },
+    {
+      "type": "text",
+      "id": "custom_dimension_3_value",
+      "label": "Custom dimension 3 value"
+    },
+    {
+      "type": "header",
+      "content": "Additional information"
+    },
+    {
+      "type": "textarea",
+      "id": "dimensions_note",
+      "label": "Dimensions note"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product dimensions"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,127 @@
+{% doc %}
+  @prompt
+    Create a collapsible tab block in main-product.liquid titled DIMENSIONS, centered in the page with the arrow, that expands to show product.metafields.custom.dimensions. It should look and behave exactly like the theme’s other collapsible tabs and be hidden if the metafield is empty. Also add schema so it appears as a block option in the product information section of the Theme Editor.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% if product.metafields.custom.dimensions != blank %}
+  {% style %}
+    .ai-dimensions-tab-{{ ai_gen_id }} {
+      border-top: 0.1rem solid rgba(var(--color-foreground), 0.08);
+    }
+
+    .ai-dimensions-tab-summary-{{ ai_gen_id }} {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 0;
+      cursor: pointer;
+      position: relative;
+      font-size: 1.6rem;
+      font-weight: 500;
+      line-height: 1.2;
+      color: rgb(var(--color-foreground));
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: center;
+    }
+
+    .ai-dimensions-tab-summary-{{ ai_gen_id }}:hover {
+      color: rgba(var(--color-foreground), 0.75);
+    }
+
+    .ai-dimensions-tab-summary-{{ ai_gen_id }}:focus-visible {
+      outline: 0.2rem solid rgba(var(--color-foreground), 0.5);
+      outline-offset: 0.1rem;
+    }
+
+    .ai-dimensions-tab-icon-{{ ai_gen_id }} {
+      margin-left: 1rem;
+      transition: transform 0.3s ease;
+      width: 1.6rem;
+      height: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .ai-dimensions-tab-{{ ai_gen_id }}[open] .ai-dimensions-tab-icon-{{ ai_gen_id }} {
+      transform: rotate(180deg);
+    }
+
+    .ai-dimensions-tab-content-{{ ai_gen_id }} {
+      padding: 0 0 1.5rem 0;
+      color: rgba(var(--color-foreground), 0.75);
+      font-size: 1.4rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .ai-dimensions-tab-content-{{ ai_gen_id }} p {
+      margin: 0;
+    }
+
+    .ai-dimensions-tab-content-{{ ai_gen_id }} p:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    @media screen and (max-width: 749px) {
+      .ai-dimensions-tab-summary-{{ ai_gen_id }} {
+        padding: 1.2rem 0;
+        font-size: 1.4rem;
+      }
+
+      .ai-dimensions-tab-icon-{{ ai_gen_id }} {
+        width: 1.4rem;
+        height: 1.4rem;
+      }
+
+      .ai-dimensions-tab-content-{{ ai_gen_id }} {
+        padding: 0 0 1.2rem 0;
+        font-size: 1.3rem;
+      }
+    }
+  {% endstyle %}
+
+  <details class="ai-dimensions-tab-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+    <summary class="ai-dimensions-tab-summary-{{ ai_gen_id }}" aria-expanded="false">
+      {{ block.settings.tab_title }}
+      <svg class="ai-dimensions-tab-icon-{{ ai_gen_id }}" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"/>
+      </svg>
+    </summary>
+    <div class="ai-dimensions-tab-content-{{ ai_gen_id }}">
+      {{ product.metafields.custom.dimensions }}
+    </div>
+  </details>
+
+  <script>
+    (function() {
+      const details = document.querySelector('.ai-dimensions-tab-{{ ai_gen_id }}');
+      const summary = details.querySelector('.ai-dimensions-tab-summary-{{ ai_gen_id }}');
+      
+      details.addEventListener('toggle', function() {
+        summary.setAttribute('aria-expanded', details.open);
+      });
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Dimensions",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "tab_title",
+      "label": "Tab title",
+      "default": "DIMENSIONS"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Dimensions"
+    }
+  ]
+}
+{% endschema %}

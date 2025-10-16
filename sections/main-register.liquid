@@ -1,0 +1,288 @@
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .customer__actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start; /* keep both buttons aligned left */
+    margin-top: 16px;
+  }
+
+  .customer__actions .button,
+  .customer__actions .button--secondary {
+    min-width: auto;        /* no extra wide buttons */
+    padding: 12px 20px;     /* equal padding for both */
+    text-align: center;     /* text centered */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Ensure the secondary button looks consistent */
+  .customer__actions .back-login-btn {
+    line-height: 1.4;
+  }
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+  /* === FIX DAWN AUTH BUTTONS LAYOUT === */
+  .customer.register .customer__actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start;       /* left aligned */
+    flex-wrap: nowrap;
+  }
+
+  /* kill the default full-width on auth pages */
+  .customer.register .customer__actions .button,
+  .customer.register .customer__actions .button--secondary,
+  .customer.register .customer__actions [type="submit"] {
+    width: auto !important;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    text-align: center;
+    line-height: 1.2;
+    margin: 0 !important;              /* remove any auto margins that push right */
+  }
+
+  /* optional: make the back link look consistent */
+  .customer.register .customer__actions .back-login-btn {
+    height: 48px;                      /* match visual height */
+    line-height: 1.2;
+  }
+
+  .customer.register .customer__actions {
+    display: flex;
+    justify-content: space-between; /* Back left, Create right */
+    align-items: center;
+    width: 100%; /* stretch container full width */
+  }
+
+  .customer.register .customer__actions .back-login-btn {
+    margin-right: auto; /* stick left */
+  }
+
+  .customer.register .customer__actions button[type="submit"] {
+    margin-left: auto;  /* stick right */
+    width: auto !important; /* stop Dawn making it full width */
+  } 
+  .customer.register .customer__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  }
+
+  .customer.register .customer__actions .back-login-link {
+    background: none;
+    border: none;
+    color: var(--color-link, #000); /* uses theme link color if defined */
+    font-size: 14px;
+    text-decoration: underline;     /* optional */
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .customer.register .customer__actions .back-login-link:hover {
+    text-decoration: none;
+    opacity: 0.8; /* subtle hover */
+  }
+
+  
+
+  .customer.register .customer__actions .back-login-link {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-width: auto !important;
+  display: inline !important;
+  font-size: 14px;
+  cursor: pointer;
+
+  color: var(--color-link);   /* <- This pulls the theme link color */
+  text-decoration: underline;
+}
+
+.customer.register .customer__actions .back-login-link:hover {
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+
+
+{%- endstyle -%}
+
+<div class="customer register section-{{ section.id }}-padding">
+  <h1>
+    {{ 'customer.register.title' | t }}
+  </h1>
+  {%- form 'create_customer', novalidate: 'novalidate' -%}
+    {%- if form.errors -%}
+      <h2 class="form__message" tabindex="-1" autofocus>
+        <span class="svg-wrapper">
+          {{- 'icon-error.svg' | inline_asset_content -}}
+        </span>
+        {{ 'templates.contact.form.error_heading' | t }}
+      </h2>
+      <ul>
+        {%- for field in form.errors -%}
+          <li>
+            {%- if field == 'form' -%}
+              {{ form.errors.messages[field] }}
+            {%- else -%}
+              <a href="#RegisterForm-{{ field }}">
+                {{ form.errors.translated_fields[field] | capitalize }}
+                {{ form.errors.messages[field] }}
+              </a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+    <div class="field">
+      <input
+        type="text"
+        name="customer[first_name]"
+        id="RegisterForm-FirstName"
+        {% if form.first_name %}
+          value="{{ form.first_name }}"
+        {% endif %}
+        autocomplete="given-name"
+        placeholder="{{ 'customer.register.first_name' | t }}"
+      >
+      <label for="RegisterForm-FirstName">
+        {{ 'customer.register.first_name' | t }}
+      </label>
+    </div>
+    <div class="field">
+      <input
+        type="text"
+        name="customer[last_name]"
+        id="RegisterForm-LastName"
+        {% if form.last_name %}
+          value="{{ form.last_name }}"
+        {% endif %}
+        autocomplete="family-name"
+        placeholder="{{ 'customer.register.last_name' | t }}"
+      >
+      <label for="RegisterForm-LastName">
+        {{ 'customer.register.last_name' | t }}
+      </label>
+    </div>
+    <div class="field">
+      <input
+        type="email"
+        name="customer[email]"
+        id="RegisterForm-email"
+        {% if form.email %}
+          value="{{ form.email }}"
+        {% endif %}
+        spellcheck="false"
+        autocapitalize="off"
+        autocomplete="email"
+        aria-required="true"
+        {% if form.errors contains 'email' %}
+          aria-invalid="true"
+          aria-describedby="RegisterForm-email-error"
+        {% endif %}
+        placeholder="{{ 'customer.register.email' | t }}"
+      >
+      <label for="RegisterForm-email">
+        {{ 'customer.register.email' | t }}
+      </label>
+    </div>
+    {%- if form.errors contains 'email' -%}
+      <span id="RegisterForm-email-error" class="form__message">
+        <span class="svg-wrapper">
+          {{- 'icon-error.svg' | inline_asset_content -}}
+        </span>
+        {{ form.errors.translated_fields.email | capitalize }}
+        {{ form.errors.messages.email }}.
+      </span>
+    {%- endif -%}
+    <div class="field">
+      <input
+        type="password"
+        name="customer[password]"
+        id="RegisterForm-password"
+        aria-required="true"
+        {% if form.errors contains 'password' %}
+          aria-invalid="true"
+          aria-describedby="RegisterForm-password-error"
+        {% endif %}
+        placeholder="{{ 'customer.register.password' | t }}"
+      >
+      <label for="RegisterForm-password">
+        {{ 'customer.register.password' | t }}
+      </label>
+    </div>
+    {%- if form.errors contains 'password' -%}
+      <span id="RegisterForm-password-error" class="form__message">
+        <span class="svg-wrapper">
+          {{- 'icon-error.svg' | inline_asset_content -}}
+        </span>
+        {{ form.errors.translated_fields.password | capitalize }}
+        {{ form.errors.messages.password }}.
+      </span>
+    {%- endif -%}
+    <div class="customer__actions">
+      
+      <a href="{{ routes.account_login_url }}" class="back-login-link">
+        ← Back to login
+      </a>
+
+
+      <button class="button">
+        {{ 'customer.register.submit' | t }}
+      </button>
+    </div>
+
+
+  {%- endform -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-register.name",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ]
+}
+{% endschema %}

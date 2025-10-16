@@ -1,0 +1,367 @@
+{% doc %}
+  @prompt
+    Create JavaScript code that shows and hides a custom text input field based on product variant selection. When a customer selects a variant with "Personalized" as an option value, show a text input field for "Name to print on the product". When they select other variants, hide the field. The code should work without requiring a page refresh.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-variant-text-field-{{ ai_gen_id }} {
+    margin: 16px 0;
+    padding: 16px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+    transition: opacity 0.3s ease, height 0.3s ease;}
+
+  .ai-variant-text-field-{{ ai_gen_id }}.hidden {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .ai-variant-text-field-{{ ai_gen_id }}__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.label_size }}px;
+  }
+
+  .ai-variant-text-field-{{ ai_gen_id }}__input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: {{ block.settings.input_text_size }}px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+    box-sizing: border-box;}
+
+  .ai-variant-text-field-{{ ai_gen_id }}__input:focus {
+    outline: 2px solid {{ block.settings.focus_color }};
+    outline-offset: 2px;border-color: {{ block.settings.focus_color }};
+  }
+
+  .ai-variant-text-field-{{ ai_gen_id }}__description {
+    margin-top: 8px;
+    font-size: {{ block.settings.description_size }}px;
+    color: {{ block.settings.description_color }};
+    line-height: 1.4;
+  }
+
+  .ai-variant-text-field-{{ ai_gen_id }}__required {
+    color: {{ block.settings.required_color }};
+  }
+{% endstyle %}
+
+<variant-text-field-{{ ai_gen_id }}
+  class="ai-variant-text-field-wrapper-{{ ai_gen_id }}"
+  data-trigger-value="{{ block.settings.trigger_value }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-variant-text-field-{{ ai_gen_id }} hidden" id="ai-variant-text-field-{{ ai_gen_id }}">
+    <label for="ai-variant-text-input-{{ ai_gen_id }}" class="ai-variant-text-field-{{ ai_gen_id }}__label">
+      {{ block.settings.field_label }}
+      {% if block.settings.required %}
+        <span class="ai-variant-text-field-{{ ai_gen_id }}__required">*</span>
+      {% endif %}
+    </label>
+    
+    <input
+      type="text"
+      id="ai-variant-text-input-{{ ai_gen_id }}"
+      name="properties[{{ block.settings.property_name }}]"
+      class="ai-variant-text-field-{{ ai_gen_id }}__input"
+      placeholder="{{ block.settings.placeholder_text }}"
+      {% if block.settings.max_characters > 0 %}maxlength="{{ block.settings.max_characters }}"{% endif %}
+      {% if block.settings.required %}required{% endif %}
+    >
+    
+    {% if block.settings.description != blank %}
+      <div class="ai-variant-text-field-{{ ai_gen_id }}__description">
+        {{ block.settings.description }}
+      </div>
+    {% endif %}
+  </div>
+</variant-text-field-{{ ai_gen_id }}>
+
+<script>(function() {
+    classVariantTextField{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.textField = this.querySelector('#ai-variant-text-field-{{ ai_gen_id }}');
+        this.textInput = this.querySelector('#ai-variant-text-input-{{ ai_gen_id }}');
+        this.triggerValue = this.dataset.triggerValue.toLowerCase();
+      }
+
+      connectedCallback() {
+        this.setupVariantListeners();
+        this.checkInitialVariant();
+      }
+
+      setupVariantListeners() {
+        const variantSelectors = document.querySelectorAll('select[name="id"], input[name="id"], .variant-input');
+        const optionSelectors = document.querySelectorAll('input[name^="options["], select[name^="options["]');
+        
+        variantSelectors.forEach(selector => {
+          selector.addEventListener('change', () => this.handleVariantChange());
+        });
+
+        optionSelectors.forEach(selector => {
+          selector.addEventListener('change', () => this.handleOptionChange());
+        });document.addEventListener('variant:change', () => this.handleVariantChange());
+      }
+
+      checkInitialVariant() {
+        this.handleVariantChange();
+        this.handleOptionChange();
+      }
+
+      handleVariantChange() {
+        const variantSelector = document.querySelector('select[name="id"], input[name="id"]:checked');
+        if (!variantSelector) return;
+
+        const variantId = variantSelector.value;
+        const productData = this.getProductData();
+        if (productData && productData.variants) {
+          const selectedVariant = productData.variants.find(variant => variant.id == variantId);
+          if (selectedVariant) {
+            this.checkVariantOptions(selectedVariant);
+          }
+        }
+      }
+
+      handleOptionChange() {
+        const optionInputs = document.querySelectorAll('input[name^="options["]:checked, select[name^="options["]');
+        let shouldShow = false;
+
+        optionInputs.forEach(input => {
+          const value = input.value.toLowerCase();
+          if (value.includes(this.triggerValue)) {
+            shouldShow = true;
+          }
+        });
+
+        this.toggleField(shouldShow);
+      }
+
+      checkVariantOptions(variant) {
+        let shouldShow = false;
+        
+        if (variant.options) {
+          variant.options.forEach(option => {
+            if (option && option.toLowerCase().includes(this.triggerValue)) {
+              shouldShow = true;
+            }
+          });
+        }
+
+        this.toggleField(shouldShow);
+      }
+
+      toggleField(show) {
+        if (show) {
+          this.textField.classList.remove('hidden');
+          if (this.textInput.hasAttribute('required')) {
+            this.textInput.setAttribute('required', '');
+          }
+        } else {
+          this.textField.classList.add('hidden');
+          this.textInput.removeAttribute('required');
+          this.textInput.value = '';
+        }
+      }
+
+      getProductData() {
+        const productScript = document.querySelector('script[type="application/json"][data-product-json]');
+        if (productScript) {
+          try {
+            return JSON.parse(productScript.textContent);
+          } catch (e) {
+            console.warn('Could not parse product JSON');}
+        }
+
+        if (window.product) {
+          return window.product;
+        }
+
+        return null;
+      }
+    }
+
+    customElements.define('variant-text-field-{{ ai_gen_id }}', VariantTextField{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Variant text field",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Field settings"
+    },
+    {
+      "type": "text",
+      "id": "trigger_value",
+      "label": "Trigger value",
+      "default": "Personalized"
+    },
+    {
+      "type": "text",
+      "id": "field_label",
+      "label": "Field label",
+      "default": "Name to print on product"
+    },
+    {
+      "type": "text",
+      "id": "property_name",
+      "label": "Property name",
+      "default": "Custom text"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_text",
+      "label": "Placeholder text",
+      "default": "Enter custom text"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "checkbox",
+      "id": "required",
+      "label": "Required field",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "label": "Max characters",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Input text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "focus_color",
+      "label": "Focus",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description text",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "required_color",
+      "label": "Required indicator",
+      "default": "#d82c0d"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Label size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "input_text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Input text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Variant text field"
+    }
+  ],
+  "tag": null
+}
+{% endschema %}

@@ -1,0 +1,477 @@
+{% doc %}
+  @prompt
+    Modify existing Liquid code to show a custom text input field for "Name to print on the product" when customers select either "Chair" or "Full Set" variants. The code should check if the variant option value equals 'Chair' or 'Full Set' instead of 'Personalized'. Include JavaScript to show/hide the field dynamically when variant selection changes without page refresh.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-custom-text-field-{{ ai_gen_id }} {
+    margin: {{ block.settings.field_margin_top }}px 0 {{ block.settings.field_margin_bottom }}px;
+    padding: {{ block.settings.field_padding }}px;
+    background-color: {{ block.settings.field_background_color }};
+    border-radius: {{ block.settings.field_border_radius }}px;
+    border: {{ block.settings.field_border_width }}px solid {{ block.settings.field_border_color }};
+    transition: opacity 0.3s ease, visibility 0.3s ease;}
+
+  .ai-custom-text-field-{{ ai_gen_id }}.hidden {
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .ai-custom-text-field-{{ ai_gen_id }} label {
+    display: block;
+    margin-bottom: 8px;
+    color: {{ block.settings.label_color }};
+    font-size: {{ block.settings.label_font_size }}px;
+    font-weight: {{ block.settings.label_font_weight }};}
+
+  .ai-custom-text-field-{{ ai_gen_id }} input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+    font-size: {{ block.settings.input_font_size }}px;
+    box-sizing: border-box;}
+
+  .ai-custom-text-field-{{ ai_gen_id }} input[type="text"]:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_border_color }};box-shadow: 0 0 0 2px {{ block.settings.input_focus_border_color }}33;
+  }
+
+  .ai-custom-text-field-{{ ai_gen_id }} .field-description {
+    margin-top: 6px;
+    font-size: {{ block.settings.description_font_size }}px;
+    color: {{ block.settings.description_color }};
+    line-height: 1.4;
+  }
+
+  .ai-custom-text-field-{{ ai_gen_id }} .character-count {
+    margin-top: 4px;
+    font-size:12px;
+    color: {{ block.settings.description_color }};
+    text-align: right;
+  }
+
+  .ai-custom-text-field-{{ ai_gen_id }} .character-count.over-limit {
+    color: {{ block.settings.error_color }};
+  }
+{% endstyle %}
+
+<custom-text-field-{{ ai_gen_id }}
+  class="ai-custom-text-field-{{ ai_gen_id }} hidden"
+  data-trigger-values="Chair,Full Set"
+  data-max-length="{{ block.settings.max_characters }}"
+  {{ block.shopify_attributes }}
+>
+  <label for="custom-text-input-{{ ai_gen_id }}">
+    {{ block.settings.field_label }}
+    {% if block.settings.required %}
+      <span style="color: {{ block.settings.error_color }};">*</span>
+    {% endif %}
+  </label>
+  <input
+    type="text"
+    id="custom-text-input-{{ ai_gen_id }}"
+    name="properties[{{ block.settings.property_name }}]"
+    placeholder="{{ block.settings.placeholder_text }}"
+    {% if block.settings.required %}required{% endif %}
+    {% if block.settings.max_characters > 0 %}maxlength="{{ block.settings.max_characters }}"{% endif %}
+  >
+  
+  {% if block.settings.description != blank %}
+    <div class="field-description">{{ block.settings.description }}</div>
+  {% endif %}
+  
+  {% if block.settings.max_characters > 0 and block.settings.show_character_count %}
+    <div class="character-count"><span class="current-count">0</span> / {{ block.settings.max_characters }}
+    </div>
+  {% endif %}
+</custom-text-field-{{ ai_gen_id }}>
+
+<script>(function() {
+    class CustomTextField{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.triggerValues = this.dataset.triggerValues.split(',').map(v => v.trim());
+        this.maxLength = parseInt(this.dataset.maxLength) || 0;
+        this.input = this.querySelector('input[type="text"]');
+        this.characterCount = this.querySelector('.character-count .current-count');
+        this.characterCountContainer = this.querySelector('.character-count');
+      }
+
+      connectedCallback() {
+        this.setupEventListeners();
+        this.checkInitialVariant();
+        this.setupCharacterCount();
+      }
+
+      setupEventListeners() {
+        document.addEventListener('change', (event) => {
+          if (event.target.matches('input[name*="id"], select[name*="id"]')) {
+            this.handleVariantChange();
+          }
+        });document.addEventListener('click', (event) => {
+          if (event.target.matches('.product-form__buttons input[type="radio"]')) {
+            setTimeout(() => this.handleVariantChange(), 10);
+          }
+        });
+
+        if (window.ProductForm) {
+          document.addEventListener('variant:change', () => {
+            this.handleVariantChange();
+          });
+        }
+      }
+
+      setupCharacterCount() {
+        if (this.maxLength > 0&& this.characterCount) {
+          this.input.addEventListener('input', () => {
+            const currentLength = this.input.value.length;
+            this.characterCount.textContent = currentLength;
+            
+            if (this.characterCountContainer) {
+              if (currentLength > this.maxLength) {
+                this.characterCountContainer.classList.add('over-limit');
+              } else {
+                this.characterCountContainer.classList.remove('over-limit');
+              }
+            }
+          });
+        }
+      }
+
+      checkInitialVariant() {
+        setTimeout(() => this.handleVariantChange(), 100);
+      }
+
+      handleVariantChange() {
+        const selectedVariant = this.getSelectedVariant();
+        const shouldShow = this.shouldShowField(selectedVariant);
+        
+        if (shouldShow) {
+          this.showField();
+        } else {
+          this.hideField();
+        }
+      }
+
+      getSelectedVariant() {
+        const productForm = document.querySelector('form[action*="/cart/add"]');
+        if (!productForm) return null;
+
+        const variantIdInput = productForm.querySelector('input[name="id"]');
+        if (variantIdInput && variantIdInput.value) {
+          const variantId = variantIdInput.value;
+          const variantScript = document.querySelector('script[type="application/json"][data-variant-id="' + variantId + '"]');
+          if (variantScript) {
+            try {
+              return JSON.parse(variantScript.textContent);
+            } catch (e) {
+              console.error('Error parsing variant data:', e);
+            }
+          }
+        }
+
+        const variantSelects = productForm.querySelectorAll('select[name*="options"], input[name*="options"]:checked');
+        const selectedOptions = [];
+        
+        variantSelects.forEach(select => {
+          if (select.type === 'radio' && select.checked) {
+            selectedOptions.push(select.value);
+          } else if (select.tagName === 'SELECT') {
+            selectedOptions.push(select.value);
+          }
+        });
+
+        if (window.productVariants) {
+          return window.productVariants.find(variant => {
+            return variant.options.every((option, index) => option === selectedOptions[index]);
+          });
+        }
+
+        return { options: selectedOptions };
+      }
+
+      shouldShowField(variant) {
+        if (!variant || !variant.options) return false;
+        
+        return variant.options.some(option =>
+          this.triggerValues.includes(option)
+        );
+      }
+
+      showField() {
+        this.classList.remove('hidden');
+        this.input.disabled = false;
+      }
+
+      hideField() {
+        this.classList.add('hidden');
+        this.input.disabled = true;
+        this.input.value = '';if (this.characterCount) {
+          this.characterCount.textContent = '0';
+        }
+        if (this.characterCountContainer) {
+          this.characterCountContainer.classList.remove('over-limit');
+        }
+      }
+    }
+
+    customElements.define('custom-text-field-{{ ai_gen_id }}', CustomTextField{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Custom text field",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Field settings"
+    },
+    {
+      "type": "text",
+      "id": "field_label",
+      "label": "Field label",
+      "default": "Name to print on the product"
+    },
+    {
+      "type": "text",
+      "id": "property_name",
+      "label": "Property name",
+      "default": "Custom Name",
+      "info": "This will be saved with the order"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_text",
+      "label": "Placeholder text",
+      "default": "Enter name here"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Field description"
+    },
+    {
+      "type": "checkbox",
+      "id": "required",
+      "label": "Required field",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "label": "Maximum characters",
+      "default": 25,
+      "info": "Set to 0 for no limit"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_character_count",
+      "label": "Show character count",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Field styling"
+    },
+    {
+      "type": "range",
+      "id": "field_margin_top",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "field_margin_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "field_padding",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Field padding",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "field_background_color",
+      "label": "Field background",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "field_border_color",
+      "label": "Field border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "range",
+      "id": "field_border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Field border width",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "field_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Field border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Label styling"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "label_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Label font size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "label_font_weight",
+      "label": "Label font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "header",
+      "content": "Input styling"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Input text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_border_color",
+      "label": "Input focus border",
+      "default": "#007acc"
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "input_font_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Input font size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Description styling"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Description font size",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "error_color",
+      "label": "Error color",
+      "default": "#d82c0d"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom text field"
+    }
+  ],
+  "tag": null
+}
+{% endschema %}

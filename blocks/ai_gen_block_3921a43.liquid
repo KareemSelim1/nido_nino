@@ -1,0 +1,1155 @@
+{% doc %}
+  @prompt
+    can you make a customer reviews dash board, can you add a place for new buyers to add a review, i want you to put write a review under the title instead of besides it and make the all reviews button return to its original place, one more thing i need the text and widgets to be indented to the middle like all the other parts of the website so it doest stick to the left and right sides of the screen, can we make the reviews number variable
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-reviews-dashboard-{{ ai_gen_id }} {
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-reviews-dashboard__container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-reviews-dashboard__header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .ai-reviews-dashboard__title-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.title_font_size }}px;
+    margin: 0 0 20px;
+    font-weight: 600;
+  }
+
+  .ai-reviews-dashboard__write-review-btn-{{ ai_gen_id }} {
+    background-color: {{ block.settings.accent_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    padding: 12px 24px;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-reviews-dashboard__write-review-btn-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.accent_color | color_darken: 10 }};
+  }
+
+  .ai-reviews-dashboard__form-{{ ai_gen_id }} {
+    background-color: {{ block.settings.form_background_color }};
+    padding: 30px;
+    border-radius: {{ block.settings.border_radius }}px;
+    margin: 30px auto;
+    max-width: 600px;
+    border: 1px solid {{ block.settings.border_color }};
+    display: none;
+  }
+
+  .ai-reviews-dashboard__form-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-reviews-dashboard__form-title-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 24px;
+    margin: 0 0 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .ai-reviews-dashboard__form-group-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .ai-reviews-dashboard__form-label-{{ ai_gen_id }} {
+    display: block;
+    color: {{ block.settings.text_color }};
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .ai-reviews-dashboard__form-input-{{ ai_gen_id }},
+  .ai-reviews-dashboard__form-select-{{ ai_gen_id }},
+  .ai-reviews-dashboard__form-textarea-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid {{ block.settings.border_color }};
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .ai-reviews-dashboard__form-textarea-{{ ai_gen_id }} {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .ai-reviews-dashboard__star-rating-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0;
+  }
+
+  .ai-reviews-dashboard__star-{{ ai_gen_id }} {
+    font-size: 24px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .ai-reviews-dashboard__star-{{ ai_gen_id }}.active,
+  .ai-reviews-dashboard__star-{{ ai_gen_id }}.hover {
+    color: {{ block.settings.star_color }};
+  }
+
+  .ai-reviews-dashboard__form-actions-{{ ai_gen_id }} {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+  }
+
+  .ai-reviews-dashboard__form-submit-{{ ai_gen_id }} {
+    background-color: {{ block.settings.accent_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    padding: 12px 24px;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .ai-reviews-dashboard__form-cancel-{{ ai_gen_id }} {
+    background-color: transparent;
+    color: {{ block.settings.text_color }};
+    border: 1px solid {{ block.settings.border_color }};
+    padding: 12px 24px;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .ai-reviews-dashboard__success-message-{{ ai_gen_id }} {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    display: none;
+  }
+
+  .ai-reviews-dashboard__success-message-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-reviews-dashboard__filters-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .ai-reviews-dashboard__filter-btn-{{ ai_gen_id }} {
+    background-color: {{ block.settings.filter_button_bg }};
+    color: {{ block.settings.filter_button_text }};
+    border: 1px solid {{ block.settings.border_color }};
+    padding: 8px 16px;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}.active,
+  .ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.accent_color }};
+    color: {{ block.settings.button_text_color }};
+  }
+
+  .ai-reviews-dashboard__stats-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .ai-reviews-dashboard__stat-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background_color }};
+    padding: 20px;
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+    text-align: center;
+  }
+
+  .ai-reviews-dashboard__stat-number-{{ ai_gen_id }} {
+    font-size: 32px;
+    font-weight: bold;
+    color: {{ block.settings.accent_color }};
+    margin-bottom: 5px;
+  }
+
+  .ai-reviews-dashboard__stat-label-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 14px;
+  }
+
+  .ai-reviews-dashboard__overall-rating-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .ai-reviews-dashboard__rating-number-{{ ai_gen_id }} {
+    font-size: 32px;
+    font-weight: bold;
+    color: {{ block.settings.accent_color }};
+  }
+
+  .ai-reviews-dashboard__stars-{{ ai_gen_id }} {
+    display: flex;
+    gap: 2px;
+  }
+
+  .ai-reviews-dashboard__star-display-{{ ai_gen_id }} {
+    color: {{ block.settings.star_color }};
+    font-size: 20px;
+  }
+
+  .ai-reviews-dashboard__star-display-{{ ai_gen_id }}.empty {
+    color: #ddd;
+  }
+
+  .ai-reviews-dashboard__rating-breakdown-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background_color }};
+    padding: 20px;
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+    margin-bottom: 30px;
+  }
+
+  .ai-reviews-dashboard__breakdown-title-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .ai-reviews-dashboard__rating-row-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .ai-reviews-dashboard__rating-label-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 14px;
+    min-width: 60px;
+  }
+
+  .ai-reviews-dashboard__rating-bar-{{ ai_gen_id }} {
+    flex-grow: 1;
+    height: 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ai-reviews-dashboard__rating-fill-{{ ai_gen_id }} {
+    height: 100%;
+    background-color: {{ block.settings.star_color }};
+    transition: width 0.3s ease;
+  }
+
+  .ai-reviews-dashboard__rating-count-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 14px;
+    min-width: 30px;
+    text-align: right;
+  }
+
+  .ai-reviews-dashboard__reviews-section-{{ ai_gen_id }} {
+    margin-top: 30px;
+  }
+
+  .ai-reviews-dashboard__section-title-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .ai-reviews-dashboard__reviews-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .ai-reviews-dashboard__review-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background_color }};
+    padding: 20px;
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+  }
+
+  .ai-reviews-dashboard__review-header-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .ai-reviews-dashboard__reviewer-name-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .ai-reviews-dashboard__review-date-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color | color_modify: 'alpha', 0.7 }};
+    font-size: 12px;
+  }
+
+  .ai-reviews-dashboard__review-rating-{{ ai_gen_id }} {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+
+  .ai-reviews-dashboard__review-text-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .ai-reviews-dashboard__review-product-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color | color_modify: 'alpha', 0.8 }};
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-reviews-dashboard__container-{{ ai_gen_id }} {
+      padding: 0 16px;
+    }
+
+    .ai-reviews-dashboard__stats-{{ ai_gen_id }} {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .ai-reviews-dashboard__reviews-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-reviews-dashboard__filters-{{ ai_gen_id }} {
+      gap: 8px;
+    }
+
+    .ai-reviews-dashboard__filter-btn-{{ ai_gen_id }} {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+{% endstyle %}
+
+<reviews-dashboard-{{ ai_gen_id }} class="ai-reviews-dashboard-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-reviews-dashboard__container-{{ ai_gen_id }}">
+    <div class="ai-reviews-dashboard__header-{{ ai_gen_id }}">
+      {% if block.settings.show_title %}
+        <h2 class="ai-reviews-dashboard__title-{{ ai_gen_id }}">{{ block.settings.dashboard_title }}</h2>
+      {% endif %}
+      
+      {% if block.settings.show_write_review %}
+        <button class="ai-reviews-dashboard__write-review-btn-{{ ai_gen_id }}" id="write-review-btn-{{ ai_gen_id }}">
+          {{ block.settings.write_review_text }}
+        </button>
+      {% endif %}
+    </div>
+
+    <div class="ai-reviews-dashboard__success-message-{{ ai_gen_id }}" id="success-message-{{ ai_gen_id }}">
+      {{ block.settings.success_message }}
+    </div>
+
+    {% if block.settings.show_write_review %}
+      <div class="ai-reviews-dashboard__form-{{ ai_gen_id }}" id="review-form-{{ ai_gen_id }}">
+        {% form 'contact' %}
+          <input type="hidden" name="contact[subject]" value="New Customer Review">
+          <input type="hidden" name="contact[review_rating]" id="review-rating-value-{{ ai_gen_id }}" value="">
+          
+          <h3 class="ai-reviews-dashboard__form-title-{{ ai_gen_id }}">{{ block.settings.form_title }}</h3>
+          
+          <div class="ai-reviews-dashboard__form-group-{{ ai_gen_id }}">
+            <label class="ai-reviews-dashboard__form-label-{{ ai_gen_id }}" for="review-name-{{ ai_gen_id }}">Name *</label>
+            <input 
+              type="text" 
+              id="review-name-{{ ai_gen_id }}" 
+              name="contact[name]" 
+              class="ai-reviews-dashboard__form-input-{{ ai_gen_id }}" 
+              required
+            >
+          </div>
+
+          <div class="ai-reviews-dashboard__form-group-{{ ai_gen_id }}">
+            <label class="ai-reviews-dashboard__form-label-{{ ai_gen_id }}" for="review-email-{{ ai_gen_id }}">Email *</label>
+            <input 
+              type="email" 
+              id="review-email-{{ ai_gen_id }}" 
+              name="contact[email]" 
+              class="ai-reviews-dashboard__form-input-{{ ai_gen_id }}" 
+              required
+            >
+          </div>
+
+          <div class="ai-reviews-dashboard__form-group-{{ ai_gen_id }}">
+            <label class="ai-reviews-dashboard__form-label-{{ ai_gen_id }}">Rating *</label>
+            <div class="ai-reviews-dashboard__star-rating-{{ ai_gen_id }}" id="star-rating-{{ ai_gen_id }}">
+              <span class="ai-reviews-dashboard__star-{{ ai_gen_id }}" data-rating="1">★</span>
+              <span class="ai-reviews-dashboard__star-{{ ai_gen_id }}" data-rating="2">★</span>
+              <span class="ai-reviews-dashboard__star-{{ ai_gen_id }}" data-rating="3">★</span>
+              <span class="ai-reviews-dashboard__star-{{ ai_gen_id }}" data-rating="4">★</span>
+              <span class="ai-reviews-dashboard__star-{{ ai_gen_id }}" data-rating="5">★</span>
+            </div>
+          </div>
+
+          {% if block.settings.show_product_selector %}
+            <div class="ai-reviews-dashboard__form-group-{{ ai_gen_id }}">
+              <label class="ai-reviews-dashboard__form-label-{{ ai_gen_id }}" for="review-product-{{ ai_gen_id }}">Product (Optional)</label>
+              <select id="review-product-{{ ai_gen_id }}" name="contact[product]" class="ai-reviews-dashboard__form-select-{{ ai_gen_id }}">
+                <option value="">Select a product</option>
+                <option value="Product 1">Product 1</option>
+                <option value="Product 2">Product 2</option>
+                <option value="Product 3">Product 3</option>
+              </select>
+            </div>
+          {% endif %}
+
+          <div class="ai-reviews-dashboard__form-group-{{ ai_gen_id }}">
+            <label class="ai-reviews-dashboard__form-label-{{ ai_gen_id }}" for="review-title-{{ ai_gen_id }}">Review Title</label>
+            <input 
+              type="text" 
+              id="review-title-{{ ai_gen_id }}" 
+              name="contact[review_title]" 
+              class="ai-reviews-dashboard__form-input-{{ ai_gen_id }}"
+            >
+          </div>
+
+          <div class="ai-reviews-dashboard__form-group-{{ ai_gen_id }}">
+            <label class="ai-reviews-dashboard__form-label-{{ ai_gen_id }}" for="review-message-{{ ai_gen_id }}">Your Review *</label>
+            <textarea 
+              id="review-message-{{ ai_gen_id }}" 
+              name="contact[body]" 
+              class="ai-reviews-dashboard__form-textarea-{{ ai_gen_id }}" 
+              required
+            ></textarea>
+          </div>
+
+          <div class="ai-reviews-dashboard__form-actions-{{ ai_gen_id }}">
+            <button type="submit" class="ai-reviews-dashboard__form-submit-{{ ai_gen_id }}">Submit Review</button>
+            <button type="button" class="ai-reviews-dashboard__form-cancel-{{ ai_gen_id }}" id="cancel-review-{{ ai_gen_id }}">Cancel</button>
+          </div>
+        {% endform %}
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_filters %}
+      <div class="ai-reviews-dashboard__filters-{{ ai_gen_id }}">
+        <button class="ai-reviews-dashboard__filter-btn-{{ ai_gen_id }} active" data-filter="all">All Reviews</button>
+        <button class="ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}" data-filter="5">5 Stars</button>
+        <button class="ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}" data-filter="4">4 Stars</button>
+        <button class="ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}" data-filter="3">3 Stars</button>
+        <button class="ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}" data-filter="2">2 Stars</button>
+        <button class="ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}" data-filter="1">1 Star</button>
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_stats %}
+      <div class="ai-reviews-dashboard__stats-{{ ai_gen_id }}">
+        <div class="ai-reviews-dashboard__stat-card-{{ ai_gen_id }}">
+          <div class="ai-reviews-dashboard__overall-rating-{{ ai_gen_id }}">
+            <div class="ai-reviews-dashboard__rating-number-{{ ai_gen_id }}">{{ block.settings.overall_rating }}</div>
+            <div class="ai-reviews-dashboard__stars-{{ ai_gen_id }}">
+              {% assign rating = block.settings.overall_rating %}
+              {% for i in (1..5) %}
+                {% if i <= rating %}
+                  <span class="ai-reviews-dashboard__star-display-{{ ai_gen_id }}">★</span>
+                {% else %}
+                  <span class="ai-reviews-dashboard__star-display-{{ ai_gen_id }} empty">★</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <div class="ai-reviews-dashboard__stat-label-{{ ai_gen_id }}">Overall Rating</div>
+        </div>
+
+        <div class="ai-reviews-dashboard__stat-card-{{ ai_gen_id }}">
+          <div class="ai-reviews-dashboard__stat-number-{{ ai_gen_id }}">{{ block.settings.total_reviews }}</div>
+          <div class="ai-reviews-dashboard__stat-label-{{ ai_gen_id }}">Total Reviews</div>
+        </div>
+
+        <div class="ai-reviews-dashboard__stat-card-{{ ai_gen_id }}">
+          <div class="ai-reviews-dashboard__stat-number-{{ ai_gen_id }}">{{ block.settings.this_month_reviews }}</div>
+          <div class="ai-reviews-dashboard__stat-label-{{ ai_gen_id }}">This Month</div>
+        </div>
+
+        <div class="ai-reviews-dashboard__stat-card-{{ ai_gen_id }}">
+          <div class="ai-reviews-dashboard__stat-number-{{ ai_gen_id }}">{{ block.settings.response_rate }}%</div>
+          <div class="ai-reviews-dashboard__stat-label-{{ ai_gen_id }}">Response Rate</div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_breakdown %}
+      <div class="ai-reviews-dashboard__rating-breakdown-{{ ai_gen_id }}">
+        <h3 class="ai-reviews-dashboard__breakdown-title-{{ ai_gen_id }}">Rating Breakdown</h3>
+        
+        {% assign total_reviews = block.settings.total_reviews %}
+        {% if total_reviews == 0 %}
+          {% assign total_reviews = 1 %}
+        {% endif %}
+
+        <div class="ai-reviews-dashboard__rating-row-{{ ai_gen_id }}">
+          <span class="ai-reviews-dashboard__rating-label-{{ ai_gen_id }}">5 Stars</span>
+          <div class="ai-reviews-dashboard__rating-bar-{{ ai_gen_id }}">
+            <div class="ai-reviews-dashboard__rating-fill-{{ ai_gen_id }}" style="width: {{ block.settings.rating_5_count | times: 100 | divided_by: total_reviews }}%"></div>
+          </div>
+          <span class="ai-reviews-dashboard__rating-count-{{ ai_gen_id }}">{{ block.settings.rating_5_count }}</span>
+        </div>
+
+        <div class="ai-reviews-dashboard__rating-row-{{ ai_gen_id }}">
+          <span class="ai-reviews-dashboard__rating-label-{{ ai_gen_id }}">4 Stars</span>
+          <div class="ai-reviews-dashboard__rating-bar-{{ ai_gen_id }}">
+            <div class="ai-reviews-dashboard__rating-fill-{{ ai_gen_id }}" style="width: {{ block.settings.rating_4_count | times: 100 | divided_by: total_reviews }}%"></div>
+          </div>
+          <span class="ai-reviews-dashboard__rating-count-{{ ai_gen_id }}">{{ block.settings.rating_4_count }}</span>
+        </div>
+
+        <div class="ai-reviews-dashboard__rating-row-{{ ai_gen_id }}">
+          <span class="ai-reviews-dashboard__rating-label-{{ ai_gen_id }}">3 Stars</span>
+          <div class="ai-reviews-dashboard__rating-bar-{{ ai_gen_id }}">
+            <div class="ai-reviews-dashboard__rating-fill-{{ ai_gen_id }}" style="width: {{ block.settings.rating_3_count | times: 100 | divided_by: total_reviews }}%"></div>
+          </div>
+          <span class="ai-reviews-dashboard__rating-count-{{ ai_gen_id }}">{{ block.settings.rating_3_count }}</span>
+        </div>
+
+        <div class="ai-reviews-dashboard__rating-row-{{ ai_gen_id }}">
+          <span class="ai-reviews-dashboard__rating-label-{{ ai_gen_id }}">2 Stars</span>
+          <div class="ai-reviews-dashboard__rating-bar-{{ ai_gen_id }}">
+            <div class="ai-reviews-dashboard__rating-fill-{{ ai_gen_id }}" style="width: {{ block.settings.rating_2_count | times: 100 | divided_by: total_reviews }}%"></div>
+          </div>
+          <span class="ai-reviews-dashboard__rating-count-{{ ai_gen_id }}">{{ block.settings.rating_2_count }}</span>
+        </div>
+
+        <div class="ai-reviews-dashboard__rating-row-{{ ai_gen_id }}">
+          <span class="ai-reviews-dashboard__rating-label-{{ ai_gen_id }}">1 Star</span>
+          <div class="ai-reviews-dashboard__rating-bar-{{ ai_gen_id }}">
+            <div class="ai-reviews-dashboard__rating-fill-{{ ai_gen_id }}" style="width: {{ block.settings.rating_1_count | times: 100 | divided_by: total_reviews }}%"></div>
+          </div>
+          <span class="ai-reviews-dashboard__rating-count-{{ ai_gen_id }}">{{ block.settings.rating_1_count }}</span>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_reviews %}
+      <div class="ai-reviews-dashboard__reviews-section-{{ ai_gen_id }}">
+        <h3 class="ai-reviews-dashboard__section-title-{{ ai_gen_id }}">Recent Reviews</h3>
+        <div class="ai-reviews-dashboard__reviews-grid-{{ ai_gen_id }}">
+          {% for i in (1..block.settings.reviews_to_show) %}
+            {% assign review_data = 'review_' | append: i %}
+            {% case i %}
+              {% when 1 %}
+                {% assign name = "Sarah M." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-28" %}
+                {% assign text = "Absolutely love this product! The quality exceeded my expectations and shipping was super fast. Will definitely order again." %}
+                {% assign product = "Premium Cotton T-Shirt" %}
+              {% when 2 %}
+                {% assign name = "Mike R." %}
+                {% assign rating = 4 %}
+                {% assign date = "2024-09-27" %}
+                {% assign text = "Great product overall. Good quality and fits perfectly. Only minor issue was the packaging could be better." %}
+                {% assign product = "Classic Denim Jeans" %}
+              {% when 3 %}
+                {% assign name = "Emma L." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-26" %}
+                {% assign text = "Perfect! Exactly what I was looking for. The color is beautiful and the material feels premium." %}
+                {% assign product = "Silk Scarf Collection" %}
+              {% when 4 %}
+                {% assign name = "David K." %}
+                {% assign rating = 3 %}
+                {% assign date = "2024-09-25" %}
+                {% assign text = "Decent product but took longer to arrive than expected. Quality is okay for the price point." %}
+                {% assign product = "Casual Sneakers" %}
+              {% when 5 %}
+                {% assign name = "Lisa P." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-24" %}
+                {% assign text = "Amazing customer service and the product is fantastic! Highly recommend to anyone looking for quality." %}
+                {% assign product = "Leather Handbag" %}
+              {% when 6 %}
+                {% assign name = "John D." %}
+                {% assign rating = 4 %}
+                {% assign date = "2024-09-23" %}
+                {% assign text = "Very satisfied with my purchase. Good value for money and arrived quickly." %}
+                {% assign product = "Wireless Headphones" %}
+              {% when 7 %}
+                {% assign name = "Anna S." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-22" %}
+                {% assign text = "Exceeded all expectations! The attention to detail is incredible and it's exactly as described." %}
+                {% assign product = "Artisan Coffee Mug" %}
+              {% when 8 %}
+                {% assign name = "Tom W." %}
+                {% assign rating = 4 %}
+                {% assign date = "2024-09-21" %}
+                {% assign text = "Solid product with good build quality. Would recommend to friends and family." %}
+                {% assign product = "Fitness Tracker" %}
+              {% when 9 %}
+                {% assign name = "Rachel B." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-20" %}
+                {% assign text = "Love it! Perfect size and the design is beautiful. Great addition to my collection." %}
+                {% assign product = "Decorative Pillow" %}
+              {% when 10 %}
+                {% assign name = "Chris M." %}
+                {% assign rating = 3 %}
+                {% assign date = "2024-09-19" %}
+                {% assign text = "It's okay. Does what it's supposed to do but nothing special. Average quality." %}
+                {% assign product = "Phone Case" %}
+              {% when 11 %}
+                {% assign name = "Sophie T." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-18" %}
+                {% assign text = "Outstanding quality and beautiful craftsmanship. Worth every penny!" %}
+                {% assign product = "Handmade Jewelry" %}
+              {% when 12 %}
+                {% assign name = "Mark H." %}
+                {% assign rating = 4 %}
+                {% assign date = "2024-09-17" %}
+                {% assign text = "Good product, fast shipping. Minor packaging issue but the item itself is great." %}
+                {% assign product = "Kitchen Utensil Set" %}
+              {% when 13 %}
+                {% assign name = "Kelly J." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-16" %}
+                {% assign text = "Perfect gift! The recipient loved it and the quality is top-notch." %}
+                {% assign product = "Gift Box Set" %}
+              {% when 14 %}
+                {% assign name = "Ryan C." %}
+                {% assign rating = 4 %}
+                {% assign date = "2024-09-15" %}
+                {% assign text = "Very happy with this purchase. Good quality and reasonable price." %}
+                {% assign product = "Sports Equipment" %}
+              {% when 15 %}
+                {% assign name = "Maria G." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-14" %}
+                {% assign text = "Incredible product! The attention to detail and quality is amazing. Highly recommend!" %}
+                {% assign product = "Home Decor Item" %}
+              {% when 16 %}
+                {% assign name = "Alex N." %}
+                {% assign rating = 4 %}
+                {% assign date = "2024-09-13" %}
+                {% assign text = "Great value for the price. Good quality and arrived on time." %}
+                {% assign product = "Tech Accessory" %}
+              {% when 17 %}
+                {% assign name = "Jessica L." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-12" %}
+                {% assign text = "Fantastic product! Exceeded my expectations in every way." %}
+                {% assign product = "Beauty Product" %}
+              {% when 18 %}
+                {% assign name = "Daniel R." %}
+                {% assign rating = 3 %}
+                {% assign date = "2024-09-11" %}
+                {% assign text = "Average product. Works as expected but nothing extraordinary." %}
+                {% assign product = "Office Supply" %}
+              {% when 19 %}
+                {% assign name = "Amy K." %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-10" %}
+                {% assign text = "Love this! Perfect quality and exactly what I needed." %}
+                {% assign product = "Garden Tool" %}
+              {% else %}
+                {% assign name = "Customer" %}
+                {% assign rating = 5 %}
+                {% assign date = "2024-09-09" %}
+                {% assign text = "Great product, very satisfied with my purchase!" %}
+                {% assign product = "Product Name" %}
+            {% endcase %}
+
+            <div class="ai-reviews-dashboard__review-card-{{ ai_gen_id }}" data-rating="{{ rating }}">
+              <div class="ai-reviews-dashboard__review-header-{{ ai_gen_id }}">
+                <span class="ai-reviews-dashboard__reviewer-name-{{ ai_gen_id }}">{{ name }}</span>
+                <span class="ai-reviews-dashboard__review-date-{{ ai_gen_id }}">{{ date | date: "%b %d, %Y" }}</span>
+              </div>
+              
+              <div class="ai-reviews-dashboard__review-rating-{{ ai_gen_id }}">
+                {% for star in (1..5) %}
+                  {% if star <= rating %}
+                    <span class="ai-reviews-dashboard__star-display-{{ ai_gen_id }}">★</span>
+                  {% else %}
+                    <span class="ai-reviews-dashboard__star-display-{{ ai_gen_id }} empty">★</span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              
+              <p class="ai-reviews-dashboard__review-text-{{ ai_gen_id }}">{{ text }}</p>
+              <div class="ai-reviews-dashboard__review-product-{{ ai_gen_id }}">Product: {{ product }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</reviews-dashboard-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ReviewsDashboard{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentFilter = 'all';
+        this.selectedRating = 0;
+      }
+
+      connectedCallback() {
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        const writeReviewBtn = this.querySelector('#write-review-btn-{{ ai_gen_id }}');
+        const reviewForm = this.querySelector('#review-form-{{ ai_gen_id }}');
+        const cancelBtn = this.querySelector('#cancel-review-{{ ai_gen_id }}');
+        const starRating = this.querySelector('#star-rating-{{ ai_gen_id }}');
+        const filterBtns = this.querySelectorAll('.ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}');
+        const form = this.querySelector('form');
+
+        if (writeReviewBtn && reviewForm) {
+          writeReviewBtn.addEventListener('click', () => {
+            reviewForm.classList.add('active');
+            reviewForm.scrollIntoView({ behavior: 'smooth' });
+          });
+        }
+
+        if (cancelBtn && reviewForm) {
+          cancelBtn.addEventListener('click', () => {
+            reviewForm.classList.remove('active');
+            this.resetForm();
+          });
+        }
+
+        if (starRating) {
+          this.setupStarRating(starRating);
+        }
+
+        if (filterBtns.length > 0) {
+          filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              this.handleFilterClick(btn);
+            });
+          });
+        }
+
+        if (form) {
+          form.addEventListener('submit', (e) => {
+            if (this.selectedRating === 0) {
+              e.preventDefault();
+              alert('Please select a rating before submitting your review.');
+              return;
+            }
+            
+            const successMessage = this.querySelector('#success-message-{{ ai_gen_id }}');
+            if (successMessage) {
+              setTimeout(() => {
+                successMessage.classList.add('active');
+                reviewForm.classList.remove('active');
+                this.resetForm();
+              }, 1000);
+            }
+          });
+        }
+      }
+
+      setupStarRating(container) {
+        const stars = container.querySelectorAll('.ai-reviews-dashboard__star-{{ ai_gen_id }}');
+        const ratingInput = this.querySelector('#review-rating-value-{{ ai_gen_id }}');
+
+        stars.forEach((star, index) => {
+          star.addEventListener('mouseenter', () => {
+            this.highlightStars(stars, index + 1);
+          });
+
+          star.addEventListener('mouseleave', () => {
+            this.highlightStars(stars, this.selectedRating);
+          });
+
+          star.addEventListener('click', () => {
+            this.selectedRating = index + 1;
+            this.highlightStars(stars, this.selectedRating);
+            if (ratingInput) {
+              ratingInput.value = this.selectedRating;
+            }
+          });
+        });
+      }
+
+      highlightStars(stars, rating) {
+        stars.forEach((star, index) => {
+          star.classList.remove('active', 'hover');
+          if (index < rating) {
+            star.classList.add(this.selectedRating > 0 ? 'active' : 'hover');
+          }
+        });
+      }
+
+      handleFilterClick(clickedBtn) {
+        const filterBtns = this.querySelectorAll('.ai-reviews-dashboard__filter-btn-{{ ai_gen_id }}');
+        const reviewCards = this.querySelectorAll('.ai-reviews-dashboard__review-card-{{ ai_gen_id }}');
+        
+        filterBtns.forEach(btn => btn.classList.remove('active'));
+        clickedBtn.classList.add('active');
+        
+        const filter = clickedBtn.dataset.filter;
+        this.currentFilter = filter;
+
+        reviewCards.forEach(card => {
+          const cardRating = card.dataset.rating;
+          if (filter === 'all' || cardRating === filter) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+
+      resetForm() {
+        this.selectedRating = 0;
+        const stars = this.querySelectorAll('.ai-reviews-dashboard__star-{{ ai_gen_id }}');
+        const ratingInput = this.querySelector('#review-rating-value-{{ ai_gen_id }}');
+        
+        stars.forEach(star => {
+          star.classList.remove('active', 'hover');
+        });
+        
+        if (ratingInput) {
+          ratingInput.value = '';
+        }
+      }
+    }
+
+    customElements.define('reviews-dashboard-{{ ai_gen_id }}', ReviewsDashboard{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Reviews dashboard",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Dashboard content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show title",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "dashboard_title",
+      "label": "Dashboard title",
+      "default": "Customer Reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_write_review",
+      "label": "Show write review button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "write_review_text",
+      "label": "Write review button text",
+      "default": "Write a Review"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stats",
+      "label": "Show statistics",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breakdown",
+      "label": "Show rating breakdown",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show review filters",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show sample reviews",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "reviews_to_show",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "label": "Number of reviews to show",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Review form"
+    },
+    {
+      "type": "text",
+      "id": "form_title",
+      "label": "Form title",
+      "default": "Write Your Review"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_selector",
+      "label": "Show product selector",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thank you for your review! We'll review it shortly."
+    },
+    {
+      "type": "header",
+      "content": "Statistics"
+    },
+    {
+      "type": "range",
+      "id": "overall_rating",
+      "min": 1,
+      "max": 5,
+      "step": 0.1,
+      "label": "Overall rating",
+      "default": 4.5
+    },
+    {
+      "type": "range",
+      "id": "total_reviews",
+      "min": 0,
+      "max": 9900,
+      "step": 99,
+      "label": "Total reviews",
+      "default": 1188
+    },
+    {
+      "type": "range",
+      "id": "this_month_reviews",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "label": "This month reviews",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "response_rate",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Response rate",
+      "default": 94
+    },
+    {
+      "type": "header",
+      "content": "Rating breakdown"
+    },
+    {
+      "type": "range",
+      "id": "rating_5_count",
+      "min": 0,
+      "max": 9900,
+      "step": 99,
+      "label": "5 star reviews",
+      "default": 792
+    },
+    {
+      "type": "range",
+      "id": "rating_4_count",
+      "min": 0,
+      "max": 5000,
+      "step": 50,
+      "label": "4 star reviews",
+      "default": 250
+    },
+    {
+      "type": "range",
+      "id": "rating_3_count",
+      "min": 0,
+      "max": 2500,
+      "step": 25,
+      "label": "3 star reviews",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "rating_2_count",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "label": "2 star reviews",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "rating_1_count",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "label": "1 star reviews",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f6f1ec"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#5a4a42"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#d8866a"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e0d5c7"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#ffc107"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "filter_button_bg",
+      "label": "Filter button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "filter_button_text",
+      "label": "Filter button text",
+      "default": "#5a4a42"
+    },
+    {
+      "type": "color",
+      "id": "form_background_color",
+      "label": "Form background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 20,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Title font size",
+      "default": 28
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviews dashboard"
+    }
+  ]
+}
+{% endschema %}
