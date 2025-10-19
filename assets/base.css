@@ -3832,31 +3832,31 @@ media-modal img,
 
 
 /*new code for making image squared */
-/* --- Product gallery: square layout (only on product page) --- */
-.product .product__media,
-.product .thumbnail-list__item {
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
+/* Square crop ONLY for the main/featured product images on the PDP */
+.product__media:not(.product__media--thumbnail) .product__media-item--image,
+.product__media:not(.product__media--thumbnail) .product__media-item--model,
+.product__media:not(.product__media--thumbnail) .product__media-item--external_video,
+.product__media:not(.product__media--thumbnail) .product__media-item--video,
+.product__media:not(.product__media--thumbnail) {
+  aspect-ratio: 1 / 1; /* force a square frame on the featured area */
 }
 
-/* images fill the square boxes without stretching */
-.product .product__media img,
-.product .thumbnail-list__item img {
+/* Make the image fill that square frame */
+.product__media:not(.product__media--thumbnail) img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
-/* --- Zoom/modal: show the full, uncropped original inside the screen --- */
-media-modal img,
-.media-modal__content img,
-.product__media-modal img {
-  width: auto !important;
+/* DO NOT affect thumbnails or zoom modal */
+.thumbnail-list__item img,
+.product-media-modal img {
   height: auto !important;
-  max-width: 95vw !important;
-  max-height: 90vh !important;
+  aspect-ratio: auto !important;
   object-fit: contain !important;
 }
+
 
 
 
