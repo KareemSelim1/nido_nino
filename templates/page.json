@@ -16,7 +16,7 @@
           "type": "ai_gen_block_0a4a283",
           "settings": {
             "image": "shopify://shop_images/2025-07-2714.31.47.jpg",
-            "height": 400,
+            "height": 450,
             "show_overlay": true,
             "overlay_opacity": 30,
             "heading": "Every child deserves a nest built with love 🧡",
@@ -32,6 +32,30 @@
       },
       "block_order": [
         "ai_gen_block_0a4a283_n4RrAY"
+      ],
+      "settings": {}
+    },
+    "17608820508085bb95": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_101e64e_MeeBxP": {
+          "type": "ai_gen_block_101e64e",
+          "settings": {
+            "small_heading": "OUR STORY",
+            "main_heading": "Inspired by nature. Rooted in love.",
+            "paragraph": "<p>As parents, we understand the deep instinct to nurture and protect your little ones. Like a caring nest, our spaces are designed to offer comfort and security, while fostering independence and growth. Intertwining natural materials, timeless design, and heartfelt craftsmanship, we create environments where children truly flourish.</p>",
+            "image": "shopify://shop_images/QueenTable.jpg",
+            "image_size": 350,
+            "background_color": "#FAF7F2",
+            "accent_color": "#B68D40",
+            "text_color": "#5C5143",
+            "enable_fade_in": true
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_101e64e_MeeBxP"
       ],
       "settings": {}
     },
@@ -88,6 +112,7 @@
   },
   "order": [
     "176088154353452163",
+    "17608820508085bb95",
     "main",
     "rich_text_CWXUB3"
   ]
