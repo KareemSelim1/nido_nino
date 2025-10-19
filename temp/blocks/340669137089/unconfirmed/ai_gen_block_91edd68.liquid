@@ -1,0 +1,434 @@
+{% doc %}
+  @prompt
+    Create a custom Shopify section called “Our Story Block” that visually matches a clean, warm, and minimalist brand aesthetic.
+    
+    The layout should be two columns on desktop (stacked on mobile):
+    
+    Left column: text content
+    
+    Right column: image
+    
+    ✨ Design Specifications:
+    
+    Background color: pure white (#FFFFFF) — ensure there are no off-white or beige blocks or background elements. The section background should blend seamlessly with the site’s white page background.
+    
+    Font: inherit the store’s existing font styles (do not import or use new fonts). Headings and body text should match the site’s typography for consistency.
+    
+    Spacing: generous padding (top: 80px, bottom: 80px, left/right: 10%)
+    
+    Image: rounded corners (8px), subtle shadow for depth, aligned vertically with text
+    
+    Animation: optional gentle fade-in on scroll
+    
+    🧱 Content Structure:
+    
+    Left side text block:
+    
+    Small heading (uppercase): “OUR STORY” — color #B68D40 (muted gold accent)
+    
+    Main heading:
+    Inspired by nature. Rooted in love.
+    Use the site’s H2 or H3 heading style
+    
+    Paragraph text:
+    
+    As parents, we understand the deep instinct to nurture and protect your little ones.  
+    Like a caring nest, our spaces are designed to offer comfort and security, while fostering independence and growth.  
+    Intertwining natural materials, timeless design, and heartfelt craftsmanship, we create environments where children truly flourish.
+    
+    
+    Use the site’s body text color (typically a neutral gray or soft brown).
+    
+    Right side image block:
+    
+    Image upload field (replaceable in the editor)
+    
+    Rounded corners (8px)
+    
+    Slight shadow for realism (rgba(0,0,0,0.05))
+    
+    Center vertically with text content
+    
+    ⚙️ Customization Options:
+    
+    Editable fields for:
+    
+    Heading text
+    
+    Paragraph text
+    
+    Accent color
+    
+    Background color
+    
+    Image upload
+    
+    Optional toggle for fade-in animation
+    
+    💡 Behavior:
+    
+    Responsive layout
+    
+    On mobile, image stacks above text
+    
+    Smooth transitions and consistent white background, just make the image size resizable , make the label a little bigger and not bold and the heading bigger by 1.5x, there is a big distance vertically between the label, header and paragraph make it smaller by 3 times, make the thing that is a variable image height
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-our-story-{{ ai_gen_id }} {
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.padding_top }}px 10% {{ block.settings.padding_bottom }}px;
+  }
+
+  .ai-our-story-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-our-story-content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .ai-our-story-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: {{ block.settings.accent_color }};
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .ai-our-story-heading-{{ ai_gen_id }} {
+    font-size: 54px;
+    line-height: 1.3;
+    color: {{ block.settings.heading_color }};
+    margin: 0;
+  }
+
+  .ai-our-story-text-{{ ai_gen_id }} {
+    font-size: 16px;
+    line-height: 1.8;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+  }
+
+  .ai-our-story-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+  }
+
+  .ai-our-story-image-{{ ai_gen_id }} {
+    width: {{ block.settings.image_width }}%;
+    height: {{ block.settings.image_height }}px;
+    object-fit: cover;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    display: block;
+    margin: 0 auto;
+  }
+
+  .ai-our-story-image-placeholder-{{ ai_gen_id }} {
+    width: {{ block.settings.image_width }}%;
+    height: {{ block.settings.image_height }}px;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .ai-our-story-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-our-story-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  {% if block.settings.enable_animation %}
+    .ai-our-story-{{ ai_gen_id }}.ai-animate-{{ ai_gen_id }} .ai-our-story-content-{{ ai_gen_id }},
+    .ai-our-story-{{ ai_gen_id }}.ai-animate-{{ ai_gen_id }} .ai-our-story-image-wrapper-{{ ai_gen_id }} {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .ai-our-story-{{ ai_gen_id }}.ai-animate-{{ ai_gen_id }}.ai-visible-{{ ai_gen_id }} .ai-our-story-content-{{ ai_gen_id }} {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.1s;
+    }
+
+    .ai-our-story-{{ ai_gen_id }}.ai-animate-{{ ai_gen_id }}.ai-visible-{{ ai_gen_id }} .ai-our-story-image-wrapper-{{ ai_gen_id }} {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.3s;
+    }
+  {% endif %}
+
+  @media screen and (max-width: 768px) {
+    .ai-our-story-{{ ai_gen_id }} {
+      padding: 60px 5% 60px;
+    }
+
+    .ai-our-story-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .ai-our-story-heading-{{ ai_gen_id }} {
+      font-size: 36px;
+    }
+
+    .ai-our-story-text-{{ ai_gen_id }} {
+      font-size: 15px;
+    }
+
+    .ai-our-story-image-wrapper-{{ ai_gen_id }} {
+      order: -1;
+    }
+
+    .ai-our-story-image-{{ ai_gen_id }},
+    .ai-our-story-image-placeholder-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<our-story-block-{{ ai_gen_id }}
+  class="ai-our-story-{{ ai_gen_id }} {% if block.settings.enable_animation %}ai-animate-{{ ai_gen_id }}{% endif %}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-our-story-container-{{ ai_gen_id }}">
+    <div class="ai-our-story-content-{{ ai_gen_id }}">
+      {% if block.settings.label != blank %}
+        <p class="ai-our-story-label-{{ ai_gen_id }}">{{ block.settings.label }}</p>
+      {% endif %}
+
+      {% if block.settings.heading != blank %}
+        <h2 class="ai-our-story-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+      {% endif %}
+
+      {% if block.settings.text != blank %}
+        <div class="ai-our-story-text-{{ ai_gen_id }}">{{ block.settings.text }}</div>
+      {% endif %}
+    </div>
+
+    <div class="ai-our-story-image-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.image %}
+        <img
+          src="{{ block.settings.image | image_url: width: 1200 }}"
+          alt="{{ block.settings.image.alt | escape }}"
+          loading="lazy"
+          width="{{ block.settings.image.width }}"
+          height="{{ block.settings.image.height }}"
+          class="ai-our-story-image-{{ ai_gen_id }}"
+        >
+      {% else %}
+        <div class="ai-our-story-image-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+          <div class="ai-our-story-empty-state-{{ ai_gen_id }}">
+            Next, add an image
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</our-story-block-{{ ai_gen_id }}>
+
+{% if block.settings.enable_animation %}
+  <script>
+    (function() {
+      class OurStoryBlock{{ ai_gen_id }} extends HTMLElement {
+        constructor() {
+          super();
+          this.observer = null;
+        }
+
+        connectedCallback() {
+          this.setupIntersectionObserver();
+        }
+
+        setupIntersectionObserver() {
+          const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.2
+          };
+
+          this.observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                this.classList.add('ai-visible-{{ ai_gen_id }}');
+                this.observer.unobserve(this);
+              }
+            });
+          }, options);
+
+          this.observer.observe(this);
+        }
+
+        disconnectedCallback() {
+          if (this.observer) {
+            this.observer.disconnect();
+          }
+        }
+      }
+
+      customElements.define('our-story-block-{{ ai_gen_id }}', OurStoryBlock{{ ai_gen_id }});
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Our story block",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "OUR STORY"
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "<p>Inspired by nature. Rooted in love.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>As parents, we understand the deep instinct to nurture and protect your little ones. Like a caring nest, our spaces are designed to offer comfort and security, while fostering independence and growth. Intertwining natural materials, timeless design, and heartfelt craftsmanship, we create environments where children truly flourish.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#B68D40"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#5a4a42"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#5a4a42"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Image width",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Image height",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_animation",
+      "label": "Enable fade-in on scroll",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Our story block"
+    }
+  ]
+}
+{% endschema %}

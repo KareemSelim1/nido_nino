@@ -1,0 +1,362 @@
+{% doc %}
+  @prompt
+    Create a custom Shopify section called “Our Story Block” that visually matches a warm, minimalist brand aesthetic.
+    
+    The layout should be two columns on desktop (stacked on mobile):
+    
+    Left column: Text content
+    
+    Right column: Image
+    
+    ✨ Design Specifications:
+    
+    Background color: #FAF7F2 or similar soft cream tone
+    
+    Typography: elegant serif font for headings (like "Playfair Display" or "Georgia") and clean sans-serif for body text (like "Inter" or "Lato")
+    
+    Spacing: generous padding (top: 80px, bottom: 80px, left/right: 10%)
+    
+    Rounded image corners (8px)
+    
+    Subtle fade-in animation on scroll
+    
+    🧩 Content Structure:
+    
+    Left side text block:
+    
+    Small heading (uppercase): “OUR STORY” in muted gold #B68D40
+    
+    Main heading:
+    Inspired by nature. Rooted in love.
+    – large serif font, about 42px on desktop, 28px on mobile
+    
+    Paragraph (body):
+    
+    As parents, we understand the deep instinct to nurture and protect your little ones.  
+    Like a caring nest, our spaces are designed to offer comfort and security, while fostering independence and growth.  
+    Intertwining natural materials, timeless design, and heartfelt craftsmanship, we create environments where children truly flourish.
+    
+    
+    Use subtle line spacing and a soft brown-grey text color like #5C5143.
+    
+    Right side image block:
+    
+    Full-height image with gentle shadow and 8px border radius
+    
+    Image should align vertically centered to text block
+    
+    ⚙️ Settings in Editor:
+    
+    Editable fields for:
+    
+    Section heading
+    
+    Paragraph text
+    
+    Accent color
+    
+    Background color
+    
+    Image upload
+    
+    💡 Behavior:
+    
+    Responsive layout
+    
+    Mobile: stack image above text with smaller padding
+    
+    Optional fade-in on scroll, just make the font like the previous widget we made, make all the fonts here like the usual page font, make the image squarred and make the size changable
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-our-story-{{ ai_gen_id }} {
+    background-color: {{ block.settings.background_color }};
+    padding: 80px 10%;
+  }
+
+  .ai-our-story-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-our-story-text-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ai-our-story-small-heading-{{ ai_gen_id }} {
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: {{ block.settings.accent_color }};
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .ai-our-story-main-heading-{{ ai_gen_id }} {
+    font-size: 42px;
+    line-height: 1.2;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .ai-our-story-paragraph-{{ ai_gen_id }} {
+    font-size: 16px;
+    line-height: 1.8;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+  }
+
+  .ai-our-story-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.image_size }}px;
+    height: {{ block.settings.image_size }}px;
+    margin: 0 auto;
+  }
+
+  .ai-our-story-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-our-story-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-our-story-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .ai-our-story-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-our-story-{{ ai_gen_id }} {
+      padding: 60px 5%;
+    }
+
+    .ai-our-story-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .ai-our-story-main-heading-{{ ai_gen_id }} {
+      font-size: 28px;
+    }
+
+    .ai-our-story-image-wrapper-{{ ai_gen_id }} {
+      order: -1;
+      width: 100%;
+      max-width: {{ block.settings.image_size }}px;
+      height: auto;
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  {% if block.settings.enable_fade_in %}
+    @media (prefers-reduced-motion: no-preference) {
+      .ai-our-story-text-{{ ai_gen_id }},
+      .ai-our-story-image-wrapper-{{ ai_gen_id }} {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+
+      .ai-our-story-text-{{ ai_gen_id }}.ai-visible-{{ ai_gen_id }},
+      .ai-our-story-image-wrapper-{{ ai_gen_id }}.ai-visible-{{ ai_gen_id }} {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  {% endif %}
+{% endstyle %}
+
+<our-story-{{ ai_gen_id }} class="ai-our-story-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-our-story-container-{{ ai_gen_id }}">
+    <div class="ai-our-story-text-{{ ai_gen_id }}">
+      {% if block.settings.small_heading != blank %}
+        <p class="ai-our-story-small-heading-{{ ai_gen_id }}">{{ block.settings.small_heading }}</p>
+      {% endif %}
+
+      {% if block.settings.main_heading != blank %}
+        <h2 class="ai-our-story-main-heading-{{ ai_gen_id }}">{{ block.settings.main_heading }}</h2>
+      {% endif %}
+
+      {% if block.settings.paragraph != blank %}
+        <div class="ai-our-story-paragraph-{{ ai_gen_id }}">{{ block.settings.paragraph }}</div>
+      {% endif %}
+    </div>
+
+    <div class="ai-our-story-image-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.image %}
+        <img
+          src="{{ block.settings.image | image_url: width: 1000 }}"
+          alt="{{ block.settings.image.alt | escape }}"
+          loading="lazy"
+          width="{{ block.settings.image.width }}"
+          height="{{ block.settings.image.height }}"
+          class="ai-our-story-image-{{ ai_gen_id }}"
+        >
+      {% else %}
+        <div class="ai-our-story-image-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+          <div class="ai-our-story-empty-state-{{ ai_gen_id }}">
+            Next, add an image
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</our-story-{{ ai_gen_id }}>
+
+{% if block.settings.enable_fade_in %}
+  <script>
+    (function() {
+      class OurStory{{ ai_gen_id }} extends HTMLElement {
+        constructor() {
+          super();
+        }
+
+        connectedCallback() {
+          this.setupScrollAnimation();
+        }
+
+        setupScrollAnimation() {
+          const textElement = this.querySelector('.ai-our-story-text-{{ ai_gen_id }}');
+          const imageElement = this.querySelector('.ai-our-story-image-wrapper-{{ ai_gen_id }}');
+
+          if (!textElement || !imageElement) return;
+
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('ai-visible-{{ ai_gen_id }}');
+              }
+            });
+          }, {
+            threshold: 0.2,
+            rootMargin: '0px 0px -50px 0px'
+          });
+
+          observer.observe(textElement);
+          observer.observe(imageElement);
+        }
+      }
+
+      customElements.define('our-story-{{ ai_gen_id }}', OurStory{{ ai_gen_id }});
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Our story block",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "small_heading",
+      "label": "Small heading",
+      "default": "OUR STORY"
+    },
+    {
+      "type": "textarea",
+      "id": "main_heading",
+      "label": "Main heading",
+      "default": "Inspired by nature. Rooted in love."
+    },
+    {
+      "type": "richtext",
+      "id": "paragraph",
+      "label": "Paragraph",
+      "default": "<p>As parents, we understand the deep instinct to nurture and protect your little ones. Like a caring nest, our spaces are designed to offer comfort and security, while fostering independence and growth. Intertwining natural materials, timeless design, and heartfelt craftsmanship, we create environments where children truly flourish.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "range",
+      "id": "image_size",
+      "min": 200,
+      "max": 600,
+      "step": 50,
+      "unit": "px",
+      "label": "Image size",
+      "default": 400
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#FAF7F2"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#B68D40"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#5C5143"
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_fade_in",
+      "label": "Enable fade-in on scroll",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Our story block"
+    }
+  ]
+}
+{% endschema %}
