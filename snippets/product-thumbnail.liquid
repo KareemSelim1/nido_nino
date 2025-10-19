@@ -94,7 +94,7 @@
       {%- endif -%}
 
       <img
-        src="https://res.cloudinary.com/dqj3zzi90/image/fetch/c_fill,g_auto,f_auto,q_auto,w_1200,h_1200/{{ absolute_src | url_param_escape }}"
+        src="cloudinary://215219348785873:DOYxq9EfrU_8wLToM3Kb0f7hFdI@dqj3zzi90{{ absolute_src | url_param_escape }}"
         alt="{{ media.alt | escape }}"
         class="{{ image_class }}"
         loading="{{ lazy | default: 'lazy' }}"
