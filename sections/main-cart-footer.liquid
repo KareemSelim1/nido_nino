@@ -117,6 +117,12 @@
                 >
                   {{ 'sections.cart.checkout' | t }}
                 </button>
+                {% comment %} Cart Attribute to flag the existence of an order note {% endcomment %}
+                {% if cart.note != blank %}
+                  <input type="hidden" name="attributes[Note_Present]" value="YES">
+                {% else %}
+                  <input type="hidden" name="attributes[Note_Present]" value="NO">
+                {% endif %}
               </div>
 
               {%- if additional_checkout_buttons -%}
