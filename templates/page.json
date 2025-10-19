@@ -35,27 +35,32 @@
       ],
       "settings": {}
     },
-    "17608820508085bb95": {
+    "1760888464b25d0691": {
       "type": "_blocks",
       "blocks": {
-        "ai_gen_block_101e64e_MeeBxP": {
-          "type": "ai_gen_block_101e64e",
+        "ai_gen_block_1bb3578_3ajreF": {
+          "type": "ai_gen_block_1bb3578",
           "settings": {
-            "small_heading": "OUR STORY",
-            "main_heading": "Inspired by nature. Rooted in love.",
-            "paragraph": "<p>As parents, we understand the deep instinct to nurture and protect your little ones. Like a caring nest, our spaces are designed to offer comfort and security, while fostering independence and growth. Intertwining natural materials, timeless design, and heartfelt craftsmanship, we create environments where children truly flourish.</p>",
+            "label": "OUR STORY",
+            "heading": "<p>Inspired by nature. Rooted in love.</p>",
+            "text": "<p>As parents, we understand the deep instinct to nurture and protect your little ones. Like a caring nest, our spaces are designed to offer comfort and security, while fostering independence and growth. Intertwining natural materials, timeless design, and heartfelt craftsmanship, we create environments where children truly flourish.</p>",
             "image": "shopify://shop_images/QueenTable.jpg",
-            "image_size": 350,
-            "background_color": "#FAF7F2",
+            "background_color": "#FFFFFF",
             "accent_color": "#B68D40",
-            "text_color": "#5C5143",
-            "enable_fade_in": true
+            "heading_color": "#5a4a42",
+            "text_color": "#5a4a42",
+            "image_width": 65,
+            "image_height": 400,
+            "image_border_radius": 8,
+            "padding_top": 80,
+            "padding_bottom": 80,
+            "enable_animation": true
           },
           "blocks": {}
         }
       },
       "block_order": [
-        "ai_gen_block_101e64e_MeeBxP"
+        "ai_gen_block_1bb3578_3ajreF"
       ],
       "settings": {}
     },
@@ -112,7 +117,7 @@
   },
   "order": [
     "176088154353452163",
-    "17608820508085bb95",
+    "1760888464b25d0691",
     "main",
     "rich_text_CWXUB3"
   ]
