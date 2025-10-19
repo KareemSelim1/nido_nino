@@ -1,14 +1,94 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
+    "176088154353452163": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_0a4a283_n4RrAY": {
+          "type": "ai_gen_block_0a4a283",
+          "settings": {
+            "image": "shopify://shop_images/2025-07-2714.31.47.jpg",
+            "height": 400,
+            "show_overlay": true,
+            "overlay_opacity": 30,
+            "heading": "Every child deserves a nest built with love 🧡",
+            "text_size": 60,
+            "text_color": "#ffffff",
+            "subtitle": "The trusted destination for safe, beautiful, and purposeful childhood spaces",
+            "subtitle_size": 20,
+            "subtitle_color": "#ffffff",
+            "text_max_width": 800
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_0a4a283_n4RrAY"
+      ],
+      "settings": {}
+    },
     "main": {
       "type": "main-page",
       "settings": {
         "padding_top": 28,
         "padding_bottom": 28
       }
+    },
+    "rich_text_CWXUB3": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_b7iMmP": {
+          "type": "heading",
+          "settings": {
+            "heading": "Talk about your brand",
+            "heading_size": "h1"
+          }
+        },
+        "text_TTpiBz": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+          }
+        },
+        "button_bGbDzH": {
+          "type": "button",
+          "settings": {
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_b7iMmP",
+        "text_TTpiBz",
+        "button_bGbDzH"
+      ],
+      "name": "t:sections.rich-text.presets.name",
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
     }
   },
   "order": [
-    "main"
+    "176088154353452163",
+    "main",
+    "rich_text_CWXUB3"
   ]
 }
