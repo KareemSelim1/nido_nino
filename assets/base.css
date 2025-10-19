@@ -3833,32 +3833,27 @@ media-modal img,
 
 /*new code for making image squared */
 /* Square crop ONLY for the main/featured product images on the PDP */
-/* ============================
-   Make only the featured (main) product image square
-   ============================ */
-.product__media-item.is-featured .media {
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
+.product__media:not(.product__media--thumbnail) .product__media-item--image,
+.product__media:not(.product__media--thumbnail) .product__media-item--model,
+.product__media:not(.product__media--thumbnail) .product__media-item--external_video,
+.product__media:not(.product__media--thumbnail) .product__media-item--video,
+.product__media:not(.product__media--thumbnail) {
+  aspect-ratio: 1 / 1; /* force a square frame on the featured area */
 }
 
-.product__media-item.is-featured .media img {
+/* Make the image fill that square frame */
+.product__media:not(.product__media--thumbnail) img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
 }
 
-/* Keep all other gallery images natural */
-.product__media-item:not(.is-featured) .media img {
-  height: auto;
-  object-fit: contain;
-}
-
-/* Never affect zoom modal or thumbnails */
-.product-media-modal .media img,
-.thumbnail-list__item img {
-  aspect-ratio: auto !important;
+/* DO NOT affect thumbnails or zoom modal */
+.thumbnail-list__item img,
+.product-media-modal img {
   height: auto !important;
+  aspect-ratio: auto !important;
   object-fit: contain !important;
 }
 
