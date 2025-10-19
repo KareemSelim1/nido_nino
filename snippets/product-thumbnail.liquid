@@ -26,15 +26,6 @@
 {% endcomment %}
 
 {%- liquid
-
-  {% comment %}my added code for squaring{% endcomment %}
-  {%- assign is_featured_image = false -%}
-  {%- if product.selected_or_first_available_variant.featured_media
-    and media.id == product.selected_or_first_available_variant.featured_media.id -%}
-    {%- assign is_featured_image = true -%}
-  {%- endif -%}
-
-
   unless lazy_load == false
     assign lazy = 'lazy'
   endunless
@@ -87,22 +78,15 @@
     </span>
     {%- render 'loading-spinner' -%}
     <div class="product__media media media--transparent">
-      {%- assign shopify_src = media.preview_image | image_url: width: 1600 -%}
-      {%- assign absolute_src = shopify_src -%}
-      {%- if absolute_src contains '//' -%}
-        {%- assign absolute_src = 'https:' | append: absolute_src -%}
-      {%- endif -%}
-
-      <img
-        src="https://res.cloudinary.com/dqj3zzi90/image/fetch/c_fill,g_auto,f_auto,q_auto,w_1200,h_1200/{{ absolute_src | url_param_escape }}"
-        alt="{{ media.alt | escape }}"
-        class="{{ image_class }}"
-        loading="{{ lazy | default: 'lazy' }}"
-        sizes="{{ sizes }}"
-        width="1200"
-        height="1200"
-      />
-
+      {{
+        media.preview_image
+        | image_url: width: 1946
+        | image_tag:
+          class: image_class,
+          loading: lazy,
+          sizes: sizes,
+          widths: '246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946'
+      }}
     </div>
     <button
       class="product__media-toggle quick-add-hidden product__media-zoom-{{ section.settings.image_zoom }}"
