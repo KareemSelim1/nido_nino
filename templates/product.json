@@ -203,6 +203,7 @@
       "blocks": {
         "trustoo_io_reviews_review_widget_qKakiJ": {
           "type": "shopify://apps/trustoo-io-reviews/blocks/review-widget/c8f15077-6475-4e86-ad06-b66038d5ba2c",
+          "disabled": true,
           "settings": {
             "product": ""
           }
@@ -211,26 +212,42 @@
       "block_order": [
         "trustoo_io_reviews_review_widget_qKakiJ"
       ],
+      "disabled": true,
       "settings": {
         "include_margins": true
       }
     },
-    "176096532076d8105b": {
+    "1760966183e2583df6": {
       "type": "apps",
       "blocks": {
-        "judge_me_reviews_review_widget_PrktGe": {
-          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "yotpo_product_reviews_reviews_znHcD4": {
+          "type": "shopify://apps/yotpo-product-reviews/blocks/reviews/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
           "settings": {
-            "review_data": "sample_data",
-            "show_shop_reviews": false,
-            "empty_state": "empty_widget",
-            "max_width": 1200
+            "product": "{{product}}"
           }
         }
       },
       "block_order": [
-        "judge_me_reviews_review_widget_PrktGe"
+        "yotpo_product_reviews_reviews_znHcD4"
       ],
+      "settings": {
+        "include_margins": true
+      }
+    },
+    "17609662038c4b13d6": {
+      "type": "apps",
+      "blocks": {
+        "yotpo_product_reviews_star_rating_GcwRHb": {
+          "type": "shopify://apps/yotpo-product-reviews/blocks/star-rating/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+          "settings": {
+            "product": "{{product}}"
+          }
+        }
+      },
+      "block_order": [
+        "yotpo_product_reviews_star_rating_GcwRHb"
+      ],
+      "disabled": true,
       "settings": {
         "include_margins": true
       }
@@ -243,6 +260,7 @@
     "collage_6GheMg",
     "1759406093c1d0ecc1",
     "176029844721412262",
-    "176096532076d8105b"
+    "1760966183e2583df6",
+    "17609662038c4b13d6"
   ]
 }
