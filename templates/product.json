@@ -251,10 +251,28 @@
       "settings": {
         "include_margins": true
       }
+    },
+    "aa9cb4fbae86f1aaf81f": {
+      "type": "apps",
+      "blocks": {
+        "9bfba772-819c-4320-9547-27ce873248d9": {
+          "type": "shopify://apps/yotpo-product-reviews/blocks/reviews/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+          "settings": {
+            "product": "{{product}}"
+          }
+        }
+      },
+      "block_order": [
+        "9bfba772-819c-4320-9547-27ce873248d9"
+      ],
+      "settings": {
+        "include_margins": true
+      }
     }
   },
   "order": [
     "main",
+    "aa9cb4fbae86f1aaf81f",
     "1759238399e29fa327",
     "related-products",
     "collage_6GheMg",
